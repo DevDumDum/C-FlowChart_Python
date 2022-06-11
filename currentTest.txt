@@ -1,0 +1,39 @@
+
+
+
+int a,d,sum,ab,ba = 0;
+char asd,aa = "asd";
+if(a<5){
+    if (a==(int)sum){
+        printf("nice");
+    }else if (asd == "asd"){
+        if (asd == "asd"){
+            while (d<=23){
+                if (d<=23){
+                    printf("aho");
+                }
+            }
+        } else {
+            printf("wala na");
+        }
+    }
+} else if (aa == "aa"){
+    printf("a");
+}
+
+
+int     3
+char    4
+float   5
+double  6
+
+// if      2
+// for     3
+// else    4
+// case    4
+// while   5
+// scanf   5
+// printf  6
+// switch  6
+// else if 7
+
