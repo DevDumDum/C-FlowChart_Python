@@ -11,7 +11,9 @@ if(a<5){
             while (d<=23){
                 if (d<=23){
                     printf("aho");
-                }
+                }else{
+		    printf("nuys");
+		}
             }
         } else {
             printf("wala na");
@@ -19,6 +21,35 @@ if(a<5){
     }
 } else if (aa == "aa"){
     printf("a");
+}
+while (d<=23){
+    printf("a");
+}
+
+
+
+if (asd == "asd"){
+    if (asd == "asd"){
+        while (d<=23){
+            if (d<=23){
+                printf("aho");
+            }else{
+                printf("hngh");
+            }
+            while (d<=23){
+                printf(":>");
+            }
+        }
+    } else if (d<=23){
+        printf("wala na");
+    } else {
+        printf("wala na");
+    }
+    if (d<=23){
+        printf("wala na");
+    }
+} else {
+    printf("eyo");
 }
 
 
@@ -36,4 +67,18 @@ double  6
 // printf  6
 // switch  6
 // else if 7
+
+
+directions:
+up          ^
+down        v
+left        <
+right       >
+RIGHT       L
+RIGHT       R
+
+functions:
+while      wh
+else       el
+output     ou
 
