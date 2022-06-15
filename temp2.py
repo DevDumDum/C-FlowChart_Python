@@ -132,8 +132,6 @@ def optimize_process_function(func):
         x+=1
     return func
 
-#chr(97)
-
 def mapping(func, flowchart):
     flowchart.append([])
     total = len(func[2])
@@ -180,10 +178,7 @@ def mapping(func, flowchart):
                 flowchart[current_row].append(None)
                 zz = len(flowchart[current_row])-1
         row_assigned.append(total_row)
-        #if func[0][x][0]+func[0][x][1] != "en":
         flowchart[current_row][column_assigned[x]] = func[0][x][0]+func[0][x][1] #str(row_assigned[x])+":"+str(column_assigned[x])#
-        #else:
-        #    flowchart[current_row][column_assigned[x]] = str(row_assigned[x])+str(column_assigned[x])
         #print(flowchart[current_row])
 
         if x+1<total:
@@ -231,23 +226,9 @@ def mapping(func, flowchart):
                 current_row+=1
         last_row = current_row
         x+=1
+        #print("vvvvvvvvvvvvvv")
+        #print(column_assigned)
 
-    #feeling up the void columns
-    #get maxcolumn
-    mcol = 0
-    maxColumn = 0
-    for mcol in range(len(column_assigned)-1):
-        if column_assigned[mcol] > maxColumn:
-            maxColumn = column_assigned[mcol]
-
-    #check and fill each row
-    for z in range(len(flowchart)):
-        tRow = len(flowchart[z])-1
-        if tRow < maxColumn+1:
-            while tRow < maxColumn+1:
-                flowchart[z].append(None)
-                tRow+=1
-    print(column_assigned)
     # #optimizing else || wag nalang gawing arrow nalang
     # xx = 0
     # while xx < total:
@@ -261,245 +242,168 @@ def mapping(func, flowchart):
     #         flowchart[row_assigned[xx]].pop(column_assigned[xx])
     #         flowchart[row_assigned[xx]-1][column_assigned[xx]] = "ev"
     #     xx+=1
-    # print(column_assigned)
-    # print(func[0])
-    # print(func[1])
-    # print(func[2])
-    # for z in range(len(flowchart)):
-    #     print(flowchart[z])
-    # print("")
+            
 
     #arrows for loops
     x = total-1
-    
     while x >= 0:
         count = 0
         if func[0][x] == "while":
-            numWhile = 0
-            yy = 0
             y = x+1
-            #find index of partner endloop
-            while y < len(func[0]):
-                if func[0][y] == "while":
-                    numWhile += 1
-                if func[0][y] == "endloop":
-                    numWhile -= 1
-                    if 0 > numWhile:
-                        # print(func[0][y])
-                        count = y
-                        break
+            while y < total:
+                count+=1
+                if column_assigned[x] > column_assigned[y]:
+                    break
                 y+=1
-            y = count
-            # print(row_assigned)
-            # print(column_assigned)
-            # print(func[0])
-            # print(y)
-            # print(count)
-            # print("")
-            temp_row = row_assigned[x]+1
-            temp_row2 = row_assigned[y-1]+1
+            # print("Row: "+str(row_assigned))
+            # print(row_assigned[x])
+            # print(column_assigned[x])
+            # print(column_assigned[y-1])
+
+            wstatus = 0
+            temp_row = row_assigned[x]+1 
             colAs_1st = column_assigned[x]
-            colAs_2nd = column_assigned[y]
-
-            # print(" x: "+str(x))
-            # print("r1: "+str(temp_row))
-            # print("r2: "+str(temp_row2))
-            # print("c1: "+str(colAs_1st))
-            # print("c2: "+str(colAs_2nd))
-
+            colAs_2nd = column_assigned[y-1]
 
             #if no next row, add row
-            flowchart.append([])
+            if len(flowchart)-1 < temp_row:
+                flowchart.append([])
+                ww = 0
+                while ww <= colAs_2nd:
+                    flowchart[-1].append(None)
+                    ww+=1
             for z in range(len(flowchart)):
-                tRow = len(flowchart[z])-1
-                while tRow < len(flowchart[temp_row2-1])-1:
-                    flowchart[z].append(None)
-                    tRow+=1
+                print(flowchart[z])
 
-            
-            #obstacle check
-            wstatus = 0
-            while wstatus == 0:
-                maxBottom1st = 0
-                maxBottom2nd = 0
-                # print("cc1: "+str(colAs_1st))
-                # print("cc2: "+str(colAs_2nd))
-                # print(flowchart[temp_row][colAs_1st])
-                # print(flowchart[temp_row2][colAs_2nd])
+            if temp_row+1 < len(flowchart):
+                wx = 1
+                wwstatus = 1
+                while wwstatus == 1: #1st column of loop
+                    if colAs_1st < len(flowchart[temp_row+wx]):
+                        if flowchart[temp_row+1][colAs_1st] != None:
+                            column_assigned[colAs_1st] +=2
+                            xx = 0
+                            while xx < count+1:
+                                column_assigned[colAs_1st + xx] +=2
+                                xx+=1
+                            colAs_1st +=2
 
-                #get Max row of endloop
-                rowUnder_col2 = temp_row2
-                while rowUnder_col2 < len(flowchart):
-                    if flowchart[rowUnder_col2][colAs_2nd] != None:
-                        break
-                    rowUnder_col2+=1
-                maxBottom2nd = rowUnder_col2-1
-
-                #Get Max row of start loop
-                rowUnder_col1 = temp_row
-                while rowUnder_col1 < len(flowchart):
-                    if flowchart[rowUnder_col1][colAs_1st] != None:
-                        break
-                    rowUnder_col1+=1
-                maxBottom1st = rowUnder_col1-1
-                
-                # print(maxBottom1st)
-                # print(maxBottom2nd)
-                # print("")
-
-                row_cleared = 0 #which row is clear
-                #check for obstacles in between
-                while True:
-                    row_cleared = 0 #which row is clear
-                    obStatus = 0
-                    xx = temp_row
-                    tempR = 0
-                    while xx < maxBottom1st+1:
-                        obStatus = 0
-                        tempR = 0
-                        xx2 = colAs_1st
-                        while xx2 < colAs_2nd:
-                            # print(">>: "+str(flowchart[xx][xx2]))
-                            if flowchart[xx][xx2] != None:
-                                obStatus = 1
-                                break
-                            xx2+=1
-                        print("")
-                        if obStatus == 0:
-                            tempR = xx
-                            break
-                        xx+=1
-                    if obStatus == 0:
-                        row_cleared = tempR
-                        flowchart[row_cleared][colAs_1st] = "L "
-                        flowchart[row_cleared][colAs_2nd] = " R"
-                        gg = colAs_1st+1
-                        while gg < colAs_2nd:
-                            flowchart[row_cleared][gg] = "<-"
-                            gg+=1
-
-                        gg = temp_row
-                        while gg < row_cleared:
-                            flowchart[gg][colAs_1st] = "^ "
-                            gg+=1
-                        
-                        gg = temp_row2
-                        while gg < row_cleared:
-                            flowchart[gg][colAs_2nd] = " v"
-                            gg+=1
-                            
-                        wstatus = 1
-                        break
-                    else:
-                        if maxBottom2nd < maxBottom1st:
-                            #inserting arrows before column 2
-                            flowchart[temp_row2-1].insert(colAs_2nd-1, "->")
-                            flowchart[temp_row2-1].insert(colAs_2nd-1, "->")
-                            colAs_2nd+=2
-                            
-                            if colAs_2nd < len(flowchart[temp_row2-1])-1:
-                                flowchart[temp_row2-1].pop(len(flowchart[temp_row2-1])-1)
-                                flowchart[temp_row2-1].pop(len(flowchart[temp_row2-1])-1)
-
-                        else:
-                            #insert arrows on both before columns
-                            print(":)")
-                            inStatus = 0
+                            print(column_assigned)
+                            ttr = row_assigned[x]+1
+                            while ttr < temp_row+1:
+                                flowchart[ttr].insert(colAs_1st, str(colAs_1st)+str(colAs_2nd))
+                                flowchart[ttr].insert(colAs_1st, str(colAs_1st)+str(colAs_2nd))
+                                ttr+=1
+                            flowchart[0].insert(colAs_1st-1, ".>")
+                            flowchart[0].insert(colAs_1st-1, ".>")
+                            print(column_assigned)
                             print(colAs_1st)
-                            print(colAs_2nd)
-                            curCol = colAs_1st-1
-                            while inStatus < len(flowchart):
-                                if inStatus <= temp_row:
-                                    flowchart[inStatus].insert(curCol, flowchart[inStatus][curCol])
-                                    flowchart[inStatus].insert(curCol, flowchart[inStatus][curCol])
-                                else:
-                                    if flowchart[inStatus][curCol] != None:
-                                        gg = 1
-                                        while True:
-                                            if flowchart[inStatus-1][curCol+gg] == None and flowchart[inStatus][curCol] != None :
-                                                curCol+=1
-                                            else:
-                                                flowchart[inStatus].insert(curCol, None)
-                                                flowchart[inStatus].insert(curCol, None)
-                                                break
-                                    else:
-                                        flowchart[inStatus].insert(curCol, None)
-                                        flowchart[inStatus].insert(curCol, None)
-                                inStatus+=1
-
-                            flowchart.insert(maxBottom1st+1,[])
-                            for z in range(len(flowchart[maxBottom1st])-1):
-                                if flowchart[maxBottom1st][z] == "^ " or flowchart[maxBottom1st][z] == "v " or maxBottom1st%2 == 0:
-                                    flowchart[maxBottom1st+1].append(flowchart[maxBottom1st][z])
-                                else:
-                                    flowchart[maxBottom1st+1].append(None)
-
-
-                            colAs_1st+=2
-                            colAs_2nd+=2
-
-                        # print(colAs_1st)
+                            print(">>>>>>>>>>>>"+str(colAs_1st-1))
+                        else:
+                            break
+                        wx+=1
+                        end_row = temp_row
+                        #placing arrow
+                        # print("----")
                         # print(colAs_2nd)
-                        # print("")
-                        #Fill gaps
-                        for z in range(len(flowchart)):
-                            tRow = len(flowchart[z])-1
-                            while tRow < len(flowchart[temp_row2-1])-1:
-                                flowchart[z].append(None)
-                                tRow+=1
-                        #get Max row of endloop
-                        rowUnder_col2 = temp_row2
-                        while rowUnder_col2 < len(flowchart):
-                            print(flowchart[rowUnder_col2])
-                            if flowchart[rowUnder_col2][colAs_2nd] != None:
-                                print("s: "+str(flowchart[rowUnder_col2][colAs_2nd]))
+                        # print(end_row)
+                        flowchart[end_row][colAs_1st] = "L"
+                        tr = colAs_1st+1
+                        while tr < colAs_2nd:
+                            flowchart[temp_row][tr] = "<"
+                            tr+=1
+                        flowchart[end_row][colAs_2nd] = "R"
+
+                        lu = row_assigned[x]+1
+                        while lu < temp_row:
+                            flowchart[lu][colAs_1st] = "^"
+                            flowchart[lu][colAs_2nd] = "v"
+                            lu+=1
+                        wstatus = 1
+                    else:
+                        temp = len(flowchart[temp_row])-1
+                        
+                        
+                        obstacle = 0
+                        if temp > colAs_2nd:
+                            if flowchart[temp_row][colAs_1st] != None or flowchart[temp_row][colAs_2nd] != None:
+                                obstacle+=1
                                 break
-                            rowUnder_col2+=1
-                        maxBottom2nd = rowUnder_col2-1
+                            tc = colAs_1st
+                            while tc < colAs_2nd:
+                                if flowchart[temp_row][tc] != None:
+                                    obstacle+=1
+                                tc+=1
 
-                        #Get Max row of start loop
-                        rowUnder_col1 = temp_row
-                        while rowUnder_col1 < len(flowchart):
-                            if flowchart[rowUnder_col1][colAs_1st] != None:
-                                print("c: "+str(flowchart[rowUnder_col1][colAs_1st]))
-                                break
-                            rowUnder_col1+=1
-                        maxBottom1st = rowUnder_col1-1
+                            
 
-                        for z in range(len(flowchart)):
-                            print(flowchart[z])
-                        # print("mb1: "+str(maxBottom1st))
-                        # print("mb2: "+str(maxBottom2nd))
-                        # print("c1 : "+str(colAs_1st))
-                        # print("c2 : "+str(colAs_2nd))
-                        print("")
+                        if obstacle == 0:
+                            while temp < colAs_1st-1:
+                                flowchart[temp_row].append(None)
+                                temp+=1
+                            flowchart[temp_row].append("L")
+                            temp = colAs_1st
+                            while temp < colAs_2nd-1:
+                                flowchart[temp_row].append("<- ")
+                                temp+=1
+                            flowchart[temp_row].append("R")
+                            wwstatus = 0
+                            wstatus = 1
+                        else:
+                            while temp < colAs_2nd:
+                                flowchart[temp_row].append(None)
+                                temp+=1
+                            temp_row+=1
+                            wwstatus = 0
+                            wstatus = 1
 
-                    # print(row_cleared)
-                    # print(maxBottom1st)
-                    # print(maxBottom2nd)
-                    # for z in range(len(flowchart)):
-                    #     print(flowchart[z])
-                    # print("")
-                    
-                    wstatus = 0
-                    break
-                # print(column_assigned)
-                # print(row_assigned)
-                for z in range(len(flowchart)):
-                    print(flowchart[z])
-                print("")
-                # print("+===================+")
-                # print(maxBottom1st)
-                # print(maxBottom2nd)
-                # print(temp_row)
-                # print(row_assigned[y-1]+1)
-                # print("+===================+")
+
+
+                    # colAs_2nd = column_assigned[y-1]
+                    # if colAs_2nd < len(flowchart[temp_row+1]):
+                    #     if flowchart[temp_row+1][colAs_2nd] != None:
+                    #         column_assigned[colAs_2nd] +=2
+                    #         colAs_2nd +=2
+                    #         print(">>>>"+str(colAs_2nd))
+
+                    #         ttr = row_assigned[x]+1
+                    #         while ttr < temp_row+1:
+                    #             flowchart[ttr].append(None)
+                    #             flowchart[ttr].append(None)
+                    #             ttr+=1
+
+                    # www = len(flowchart[row_assigned[x]])
+                    # while www < colAs_2nd:
+                    #     flowchart[row_assigned[x]].insert(colAs_2nd-2, str(colAs_2nd-2)+"!>")
+                    #     flowchart[row_assigned[x]].insert(colAs_2nd-2, "!>")
+                    #     www+=1
+
+                    # www = len(flowchart[row_assigned[x]])
+                    # while www < colAs_1st:
+                    #     if column_assigned[x] < column_assigned[x-1]:
+                    #         flowchart[row_assigned[x]].insert(colAs_1st, str(colAs_1st-2)+"?>")
+                    #         flowchart[row_assigned[x]].insert(colAs_1st, "?>")
+                    #     else:
+                    #         flowchart[row_assigned[x]].insert(colAs_1st, None)
+                    #         flowchart[row_assigned[x]].insert(colAs_1st, None)
+                    #     www+=1
+                else:
+                    wstatus = 1
+                # for z in range(len(flowchart)):
+                #     print(flowchart[z])
+            
+            zz = len(flowchart[temp_row])-1
+            if column_assigned[colAs_2nd] > zz:
+                while column_assigned[x+1] > zz:
+                    flowchart[current_row].append(None)
+                    zz = len(flowchart[temp_row])-1
         x-=1
     print("=========================")
-    #print(func[1])
+    print(colAs_1st)
+    print(colAs_2nd)
     print("total row: "+str(total_row))
     #print(func[0])
-    print("   Row: "+str(row_assigned))
+    print("Row: "+str(row_assigned))
     print("Column: "+str(column_assigned))
     print("")
     for z in range(len(flowchart)):
@@ -515,19 +419,18 @@ def convertBtn():
     bt["bg"] = BtnColor
     if status == True:
         text_code_count = len(res)
+
         bracketStart = 0
         bracketEnd = 0
+        total_if = 0
+        total_else_if = 0
         tempBracketEnd = 0
         
         func = []
         func.append([]) #label              0
-        func.append([]) #loop position      1
+        func.append([]) #bracket status     1
         func.append([]) #position           2
         func.append([]) #text_label         3
-        func.append([]) #pointing           4
-
-        tempW = []
-        whileStatus = 0
 
         flowchart = []  #map of flowchart
 
@@ -554,14 +457,6 @@ def convertBtn():
             if(text_code_count > i+5):
                 if str(res[i])+str(res[i+1])+str(res[i+2])+str(res[i+3])+str(res[i+4]) == "while":
                     conType = "while"
-                    tempW.append(1)
-                    whileStatus += 1
-                    # gg = len(tempW)
-                    # while gg >= 0:
-                    #     if tempW[gg-1] != 0:
-                    #         whileIndex = gg
-                    #     gg-=1
-
                     condStatus = 1
                     i+=5
                 elif str(res[i])+str(res[i+1])+str(res[i+2])+str(res[i+3])+str(res[i+4]) == "float" and str(res[i+5]) == " ":
@@ -613,48 +508,36 @@ def convertBtn():
 
                 
                 func = position(func, tempBracketEnd)
+
             if text_code_count > i:
                 if res[i] == "{":
                     bracketStart+=1
                     tempBracketEnd += 1
-                    if whileStatus > 0:
-                        for a in range(len(tempW)):
-                            if tempW[a] != 0:
-                                tempW[a] += 1
-                    
                     
                 elif res[i] == "}":
-                    if whileStatus > 0:
-                        tempN = None
-                        gg = len(tempW)-1
-                        while gg >= 0:
-                            if tempW[gg] != 0:
-                                tempW[gg] -= 1
-                                if tempW[gg]-1 <= 0:
-                                    func[0].append("endloop")
-                                    func[1].append(gg+1)
-                                    func[2].append(func[2][-1]+1)
-                                    func[3].append("endloop")
-                                    whileStatus-=1
-                                    tempW[gg] = 0
-                            gg-=1
-
-
-                        # if tempW[tempWhile-1] == 0:
-                        #     func[0].append("endloop")
-                        #     func[1].append(len(tempW))
-                        #     func[2].append(func[2][-1]+1)
-                        #     func[3].append("endloop")
-                        #     tempW[tempWhile-1] == None
-                        #     tempWhile -= 1
+                    # xx = len(func[1])-1
+                    # while xx >= 0:
+                    #     if func[1][xx] == 1:
+                    #         func[1][xx] = 0
+                    #         break
+                    #     xx-=1
+                    # bracketEnd+=1
                     tempBracketEnd -= 1
-
                 i+=1
-            print(tempW)
-        print(func[0])
-        print("")
         func = optimize_process_function(func)
         flowchart = mapping(func, flowchart)
+        print("--------------------")
+        # print("Label: "+str(func[0]))
+        # #print("Status: "+str(func[1]))
+        # print("Position: "+str(func[2]))
+        # print("Content: "+str(func[3]))
+
+        #dapat nagawa na yung pang function para ma uncomment ito
+        # if len(func[2]) != bracketStart/2:
+        #     bt["text"] = "statement error"
+        #     bt["bg"] = "red"
+        #     print(len(func[2]))
+        #     print(bracketStart)
     else:
         print(tempText)
 
@@ -673,3 +556,14 @@ v.config(command=text.yview)
 
 root.geometry('340x400')
 root.mainloop()
+
+# draw.rectangle((200, 100, 300, 200), fill=(0, 192, 192), outline=(255, 255, 255))
+# img.show()
+# draw.ellipse((100, 100, 200, 200), fill=(255, 0, 0), outline=(0, 0, 0))
+# img.show()
+# draw.line((350, 200, 450, 100), fill=(255, 255, 0), width=10)
+# img.show()
+# draw.rectangle((200, 100, 300, 200), fill=(0, 192, 192), outline=(255, 255, 255))
+# draw.ellipse((100, 100, 100, 100), fill=(255, 0, 0), outline=(0, 0, 0))
+# draw.line((350, 200, 450, 100), fill=(255, 255, 0), width=10)
+# img.show()
