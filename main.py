@@ -64,20 +64,29 @@ def condition(res, i, bracketStart, bracketEnd, func):
 
     return i, bracketStart, bracketEnd, func
 
-def process(res, i, func):
+def process(res, i, func, wStatusVar, whileIncrement):
     process_label = ""
+    print(i)
+    if res[i] == ";":
+        i-=1
+        while res[i] != ";" and res[i] != "{" and res[i] != "}":
+            i-=1
+        i+=1
 
     while res[i] != ";":
         process_label += res[i]
         i+=1
-    process_label +=res[i]
-    func[3].append(process_label)
 
+    process_label +=res[i]
+    if wStatusVar != 0:
+        whileIncrement.append(process_label)
+    else:
+        func[3].append(process_label)
     print("Type: "+func[0][len(func[0])-1])
     print("Label: "+process_label)
     print("")
 
-    return i, func
+    return i, func,whileIncrement
 
 def position(func, tempBracketEnd):
     func[2].append(tempBracketEnd)
@@ -132,9 +141,103 @@ def optimize_process_function(func):
         x+=1
     return func
 
+def forLoopFormatFix(func):
+    #fix for loop format
+    total = len(func[2])
+    x = total-1
+    while x >= 0:
+        if func[0][x] == "for":
+            print(func[2])
+            #insert process for declarations
+            indexFunc = 0
+            tempProcessLabel = ""
+            newProcessLabel = ""
+            tempProcessLabel2 = ""
+            lastIndex = 0 #index of increment of the or loop
+            
+            #segregate variable assignment in for loop
+            while func[3][x][indexFunc] != ";" and indexFunc < len(func[3][x])-1:
+                tempProcessLabel += func[3][x][indexFunc]
+                indexFunc+=1
+            tempProcessLabel += func[3][x][indexFunc]
+            indexFunc+=1
+            
+            #new process label in for loop (var assignment and var increment removed)
+            while func[3][x][indexFunc] != ";" and indexFunc < len(func[3][x])-1:
+                newProcessLabel += func[3][x][indexFunc]
+                indexFunc+=1
+            indexFunc+=1
+            #func[3][x] = newProcessLabel
+            
+            #segregate variable increment in for loop
+            while indexFunc < len(func[3][x]):
+                tempProcessLabel2 += func[3][x][indexFunc]
+                indexFunc+=1
+
+            func[0].insert(x, "process")
+            func[2].insert(x, func[2][x])
+            changeIndex = x+1
+            numFor = 0
+            while changeIndex < len(func[2]):
+                if func[0][changeIndex] == "for":
+                    numFor+=1
+
+                if numFor != 0:
+                    func[2][changeIndex] = func[2][changeIndex]+1
+                else:
+                    break
+                
+                if func[0][changeIndex] == "endFloop":
+                    numFor-=1
+                    if numFor == 0:
+                        lastIndex = changeIndex
+                
+                changeIndex+=1
+            #insert the var assignment as process
+            func[3].insert(x, tempProcessLabel)
+            
+            #remove variable assignment in label of for loop
+            func[3][x+1] = newProcessLabel
+
+            #insert the var increment as process
+            func[3][lastIndex] = tempProcessLabel2+";"
+            
+            #to avoid conflict with other endloop/endFloop
+            tempL = lastIndex+1
+            if tempL < len(func[0]):
+                while func[0][tempL] == "endloop" or func[0][tempL] == "endFloop":
+                        print("!!!!!!!!!!!!!!!!!!!!!!")
+                        print(func[0][tempL] )
+                        func[2][tempL] = func[2][tempL-1]+1
+                        tempL+=1
+            # func[0].insert(lastIndex, "process")
+            # func[2].insert(lastIndex, func[2][lastIndex])
+            # func[3].insert(lastIndex, tempProcessLabel2+";") 
+            # func[2][lastIndex+1] = func[2][lastIndex+1]+1
+            
+            print(func[0])
+            print(func[2])
+            print("")
+        x-=1
+    return func
+
+def whileLoopFormatFix(func, whileIncrement):
+    total = len(func[2])
+    x = total-1
+    endLoopNum = len(whileIncrement)-1
+    while x >= 0:
+        if func[0][x] == "endloop":
+            func[3][x] = whileIncrement[endLoopNum]
+            endLoopNum-=1
+            print("VVVVVVVVVVVVVVVV")
+            print(func[3][x])
+        x-=1
+    return func
 #chr(97)
 
-def mapping(func, flowchart):
+def mapping(func, flowchart, whileIncrement):
+    func = forLoopFormatFix(func)
+    func = whileLoopFormatFix(func, whileIncrement)
     flowchart.append([])
     total = len(func[2])
     column_assigned = []  #add in-between per shape for arrows
@@ -181,7 +284,7 @@ def mapping(func, flowchart):
                 zz = len(flowchart[current_row])-1
         row_assigned.append(total_row)
         #if func[0][x][0]+func[0][x][1] != "en":
-        flowchart[current_row][column_assigned[x]] = func[0][x][0]+func[0][x][1] #str(row_assigned[x])+":"+str(column_assigned[x])#
+        flowchart[current_row][column_assigned[x]] = func[0][x][0]+func[0][x][1]#+str(column_assigned[x])#
         #else:
         #    flowchart[current_row][column_assigned[x]] = str(row_assigned[x])+str(column_assigned[x])
         #print(flowchart[current_row])
@@ -247,7 +350,7 @@ def mapping(func, flowchart):
             while tRow < maxColumn+1:
                 flowchart[z].append(None)
                 tRow+=1
-    print(column_assigned)
+    #print(column_assigned)
     # #optimizing else || wag nalang gawing arrow nalang
     # xx = 0
     # while xx < total:
@@ -274,15 +377,26 @@ def mapping(func, flowchart):
     
     while x >= 0:
         count = 0
-        if func[0][x] == "while":
+        current = ""
+        currentEnd = ""
+        if func[0][x] == "while" or func[0][x] == "for":
+            if func[0][x] == "while":
+                current = "while"
+                currentEnd = "endloop"
+            else:
+                current = "for"
+                currentEnd = "endFloop"
+
+
+
             numWhile = 0
             yy = 0
             y = x+1
             #find index of partner endloop
             while y < len(func[0]):
-                if func[0][y] == "while":
+                if func[0][y] == current:
                     numWhile += 1
-                if func[0][y] == "endloop":
+                if func[0][y] == currentEnd:
                     numWhile -= 1
                     if 0 > numWhile:
                         # print(func[0][y])
@@ -385,7 +499,7 @@ def mapping(func, flowchart):
                         
                         gg = temp_row2
                         while gg < row_cleared:
-                            flowchart[gg][colAs_2nd] = " v"
+                            flowchart[gg][colAs_2nd] = "v "
                             gg+=1
                             
                         wstatus = 1
@@ -501,10 +615,18 @@ def mapping(func, flowchart):
     #print(func[0])
     print("   Row: "+str(row_assigned))
     print("Column: "+str(column_assigned))
+    print(func[0])
+    print(func[2])
+    print(func[3])
+    print(whileIncrement)
+
     print("")
     for z in range(len(flowchart)):
         print(flowchart[z])
     return 0
+
+
+
 
 # Button
 def convertBtn():
@@ -525,9 +647,13 @@ def convertBtn():
         func.append([]) #position           2
         func.append([]) #text_label         3
         func.append([]) #pointing           4
+        whileIncrement = []
 
+        tempF = []
+        forStatus = 0
         tempW = []
         whileStatus = 0
+        wStatusVar = 0
 
         flowchart = []  #map of flowchart
 
@@ -556,12 +682,6 @@ def convertBtn():
                     conType = "while"
                     tempW.append(1)
                     whileStatus += 1
-                    # gg = len(tempW)
-                    # while gg >= 0:
-                    #     if tempW[gg-1] != 0:
-                    #         whileIndex = gg
-                    #     gg-=1
-
                     condStatus = 1
                     i+=5
                 elif str(res[i])+str(res[i+1])+str(res[i+2])+str(res[i+3])+str(res[i+4]) == "float" and str(res[i+5]) == " ":
@@ -585,6 +705,14 @@ def convertBtn():
                     conType = "process"
                     condStatus = 1
 
+                elif str(res[i])+str(res[i+1])+str(res[i+2]) == "for":
+                    conType = "for"
+                    tempF.append(1)
+                    forStatus += 1
+                    condStatus = 1
+                    i+=3
+
+
             # if(text_code_count > i+2):
             #     print("")
 
@@ -593,7 +721,21 @@ def convertBtn():
                     conType = "if"
                     i+=2
                     condStatus = 1
-            
+                elif str(res[i]) == ";" and condStatus == 0:
+                    conType = "process"
+                    checkVarWhile = i #check if the process is for while increment
+                    check4WhileVar = 0
+                    while res[checkVarWhile] != "}" and checkVarWhile < text_code_count:
+                        if res[checkVarWhile] != " " and res[checkVarWhile] != "\\" and res[checkVarWhile] != "\n":
+                            check4WhileVar += 1
+                        checkVarWhile +=1
+                    if check4WhileVar != 0:
+                        wStatusVar = 1
+                        i, func, whileIncrement = process(res, i, func, wStatusVar, whileIncrement)
+                    else:
+                        condStatus = 1
+                        
+
             if condStatus == 1:
                 print("--------------------")
                 func[0].append(conType)
@@ -603,10 +745,12 @@ def convertBtn():
                     i, bracketStart, bracketEnd, func = condition(res, i, bracketStart, bracketEnd, func)
                 elif conType == "process":
                     print("Shape: Rectangle")
-                    i, func = process(res, i, func)
+                    wStatusVar = 0
+                    i, func, whileIncrement = process(res, i, func, wStatusVar, whileIncrement)
                 elif conType == "input" or conType == "output":
                     print("Shape: Parrallelogram")
-                    i, func = process(res, i, func)
+                    wStatusVar = 0
+                    i, func, whileIncrement = process(res, i, func, wStatusVar, whileIncrement)
                 elif conType == "else":
                     print("else arrow")
                     func[3].append("else")
@@ -638,6 +782,19 @@ def convertBtn():
                                     whileStatus-=1
                                     tempW[gg] = 0
                             gg-=1
+                    if forStatus > 0:
+                        gg = len(tempF)-1
+                        while gg >= 0:
+                            if tempF[gg] != 0:
+                                tempF[gg] -= 1
+                                if tempF[gg]-1 <= 0:
+                                    func[0].append("endFloop")
+                                    func[1].append(gg+1)
+                                    func[2].append(func[2][-1]+1)
+                                    func[3].append("endFloop")
+                                    forStatus-=1
+                                    tempF[gg] = 0
+                            gg-=1
 
 
                         # if tempW[tempWhile-1] == 0:
@@ -650,11 +807,11 @@ def convertBtn():
                     tempBracketEnd -= 1
 
                 i+=1
-            print(tempW)
-        print(func[0])
-        print("")
+            #print(tempF)
+        # print(func[0])
+        # print("")
         func = optimize_process_function(func)
-        flowchart = mapping(func, flowchart)
+        flowchart = mapping(func, flowchart, whileIncrement)
     else:
         print(tempText)
 

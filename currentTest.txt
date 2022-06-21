@@ -1,3 +1,20 @@
+func.append([]) #label              0
+func.append([]) #loop position      1
+func.append([]) #position           2
+func.append([]) #text_label         3
+func.append([]) #pointing           4
+
+
+int a,d,sum,ab,ba = 0;
+char asd,aa = "asd";
+if(a<5){
+	for (int d = 0;d<=23;d++){
+		printf("nuys");
+	}
+} else {
+	printf("wala na");
+}
+
 
 
 
@@ -12,13 +29,23 @@ if(a<5){
                 if (d<=23){
                     printf("aho");
                 }else{
-		            printf("nuys");
+                    printf("nuys");
                     while (d<=23){
                         printf("nuys");
                     }
-		        }
+                }
                 while (d<=23){
                     printf("nuys");
+                    d++;
+                }
+                for (int d = 0;d<=23;d++){
+                    printf("nuys");
+                    d++;
+                    for (int d = 0;d<=23;d++){
+                        printf("nuys");
+                        d++;
+                        
+                    }
                 }
             }
         } else {
@@ -30,6 +57,7 @@ if(a<5){
 }
 while (d<=23){
     printf("a");
+    d--;
 }
 
 if (asd == "asd"){
@@ -40,16 +68,21 @@ if (asd == "asd"){
             }else{
                 printf("hngh");
                 while (d<=23){
-		     if (d<=23){
-		         printf("hngh");
-		     } else {
-		     	 printf("hngh");
-		     }
+                    if (d<=23){
+                        printf("hngh");
+                    } else {
+                        printf("hngh");
+                    }
+			        d++;
                 }
             }
-            while (d<=23){
+            for(int d=0;d<=23;d++){
                 printf(":>");
+                for(int d=0;d<=23;d++){
+                    printf(":>");
+                }
             }
+			d++;
         }
     } else if (d<=23){
         printf("wala na");
@@ -62,6 +95,8 @@ if (asd == "asd"){
 } else {
     printf("eyo");
 }
+
+
 
 
 
