@@ -202,22 +202,16 @@ def forLoopFormatFix(func):
             #insert the var increment as process
             func[3][lastIndex] = tempProcessLabel2+";"
             
-            #to avoid conflict with other endloop/endFloop
+            #to avoid conflict with other endloop/endFloop, increment
             tempL = lastIndex+1
-            if tempL < len(func[0]):
-                while func[0][tempL] == "endloop" or func[0][tempL] == "endFloop":
-                        print("!!!!!!!!!!!!!!!!!!!!!!")
-                        print(func[0][tempL] )
-                        func[2][tempL] = func[2][tempL-1]+1
-                        tempL+=1
+            if tempL+1 < len(func[0]):
+                while (func[0][tempL] == "endloop" or func[0][tempL] == "endFloop") and tempL < len(func[0]):
+                    func[2][tempL] = func[2][tempL-1]+1
+                    tempL+=1
             # func[0].insert(lastIndex, "process")
             # func[2].insert(lastIndex, func[2][lastIndex])
             # func[3].insert(lastIndex, tempProcessLabel2+";") 
             # func[2][lastIndex+1] = func[2][lastIndex+1]+1
-            
-            print(func[0])
-            print(func[2])
-            print("")
         x-=1
     return func
 
@@ -229,8 +223,6 @@ def whileLoopFormatFix(func, whileIncrement):
         if func[0][x] == "endloop":
             func[3][x] = whileIncrement[endLoopNum]
             endLoopNum-=1
-            print("VVVVVVVVVVVVVVVV")
-            print(func[3][x])
         x-=1
     return func
 #chr(97)
@@ -238,6 +230,7 @@ def whileLoopFormatFix(func, whileIncrement):
 def mapping(func, flowchart, whileIncrement):
     func = forLoopFormatFix(func)
     func = whileLoopFormatFix(func, whileIncrement)
+    totalpointer = 0 #pointer
     flowchart.append([])
     total = len(func[2])
     column_assigned = []  #add in-between per shape for arrows
@@ -276,6 +269,7 @@ def mapping(func, flowchart, whileIncrement):
             while total_row > zz:
                 flowchart.append([])
                 zz = len(flowchart)-1
+
         #check column
         zz = len(flowchart[current_row])-1
         if column_assigned[x] > zz:
@@ -283,11 +277,7 @@ def mapping(func, flowchart, whileIncrement):
                 flowchart[current_row].append(None)
                 zz = len(flowchart[current_row])-1
         row_assigned.append(total_row)
-        #if func[0][x][0]+func[0][x][1] != "en":
         flowchart[current_row][column_assigned[x]] = func[0][x][0]+func[0][x][1]#+str(column_assigned[x])#
-        #else:
-        #    flowchart[current_row][column_assigned[x]] = str(row_assigned[x])+str(column_assigned[x])
-        #print(flowchart[current_row])
 
         if x+1<total:
             if column_assigned[x] < column_assigned[x+1]:
@@ -372,7 +362,9 @@ def mapping(func, flowchart, whileIncrement):
     #     print(flowchart[z])
     # print("")
 
-    #arrows for loops
+
+
+    #arrows for and while loops
     x = total-1
     
     while x >= 0:
@@ -404,42 +396,38 @@ def mapping(func, flowchart, whileIncrement):
                         break
                 y+=1
             y = count
-            # print(row_assigned)
-            # print(column_assigned)
-            # print(func[0])
-            # print(y)
-            # print(count)
-            # print("")
             temp_row = row_assigned[x]+1
             temp_row2 = row_assigned[y-1]+1
             colAs_1st = column_assigned[x]
             colAs_2nd = column_assigned[y]
 
-            # print(" x: "+str(x))
-            # print("r1: "+str(temp_row))
-            # print("r2: "+str(temp_row2))
-            # print("c1: "+str(colAs_1st))
-            # print("c2: "+str(colAs_2nd))
+            #check and fill if under loop doesnt have a row
+            if temp_row > len(flowchart)-1 or temp_row2 > len(flowchart)-1:
+                flowchart.append([])
 
-
-            #if no next row, add row
-            flowchart.append([])
-            for z in range(len(flowchart)):
-                tRow = len(flowchart[z])-1
-                while tRow < len(flowchart[temp_row2-1])-1:
-                    flowchart[z].append(None)
-                    tRow+=1
-
+            #fill columns
+            if len(flowchart[temp_row]) < len(flowchart[0])-1 or len(flowchart[temp_row2]) < len(flowchart[0])-1 :
+                xx = 0
+                while xx < len(flowchart):
+                    if len(flowchart[xx]) < len(flowchart[0]):
+                        for z in range(len(flowchart[0]) - len(flowchart[xx])):
+                            flowchart[xx].append(None)
+                    xx+=1
             
             #obstacle check
             wstatus = 0
+            usePointer = 0 #if pointer will be used instead of arrows
             while wstatus == 0:
                 maxBottom1st = 0
                 maxBottom2nd = 0
-                # print("cc1: "+str(colAs_1st))
-                # print("cc2: "+str(colAs_2nd))
-                # print(flowchart[temp_row][colAs_1st])
-                # print(flowchart[temp_row2][colAs_2nd])
+                usePointer = 0
+
+                #check if block have obstruction under, use pointer otherwise
+                if flowchart[temp_row][colAs_1st] == "v ":
+                    usePointer = 1
+                    totalpointer+=1
+                    wstatus = 1
+                    break
 
                 #get Max row of endloop
                 rowUnder_col2 = temp_row2
@@ -456,10 +444,6 @@ def mapping(func, flowchart, whileIncrement):
                         break
                     rowUnder_col1+=1
                 maxBottom1st = rowUnder_col1-1
-                
-                # print(maxBottom1st)
-                # print(maxBottom2nd)
-                # print("")
 
                 row_cleared = 0 #which row is clear
                 #check for obstacles in between
@@ -478,9 +462,10 @@ def mapping(func, flowchart, whileIncrement):
                                 obStatus = 1
                                 break
                             xx2+=1
-                        print("")
                         if obStatus == 0:
                             tempR = xx
+                            # print("row: "+str(tempR))
+                            # print("")
                             break
                         xx+=1
                     if obStatus == 0:
@@ -552,9 +537,6 @@ def mapping(func, flowchart, whileIncrement):
                             colAs_1st+=2
                             colAs_2nd+=2
 
-                        # print(colAs_1st)
-                        # print(colAs_2nd)
-                        # print("")
                         #Fill gaps
                         for z in range(len(flowchart)):
                             tRow = len(flowchart[z])-1
@@ -586,7 +568,7 @@ def mapping(func, flowchart, whileIncrement):
                         # print("mb2: "+str(maxBottom2nd))
                         # print("c1 : "+str(colAs_1st))
                         # print("c2 : "+str(colAs_2nd))
-                        print("")
+                        # print("")
 
                     # print(row_cleared)
                     # print(maxBottom1st)
@@ -602,12 +584,30 @@ def mapping(func, flowchart, whileIncrement):
                 for z in range(len(flowchart)):
                     print(flowchart[z])
                 print("")
+                
+                
                 # print("+===================+")
                 # print(maxBottom1st)
                 # print(maxBottom2nd)
                 # print(temp_row)
                 # print(row_assigned[y-1]+1)
                 # print("+===================+")
+            if usePointer == 1:
+                if temp_row-2 >= 0:
+                    flowchart[temp_row-2][colAs_1st] = chr(97+(totalpointer-1))+" " #place pointer on top of block
+                    flowchart[temp_row2][colAs_2nd] = chr(97+(totalpointer-1))+" " #place pointer at the bottom of the 2nd block
+                else:
+                    xx = 0
+                    flowchart.insert(temp_row-1,[])
+                    while xx < len(flowchart[temp_row]):
+                        flowchart[temp_row-1].append(None)
+                        xx+=1
+                    flowchart[temp_row-1][colAs_1st] = chr(97+(totalpointer-1))+" " #place pointer on top of block
+                    flowchart[temp_row2+1][colAs_2nd] = chr(97+(totalpointer-1))+" " #place pointer on top of block
+
+                # for z in range(len(flowchart)):
+                #     print(flowchart[z])
+                # print("")
         x-=1
     print("=========================")
     #print(func[1])

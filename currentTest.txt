@@ -97,6 +97,15 @@ if (asd == "asd"){
 }
 
 
+for (int d = 0;d<=23;d++){
+    printf("nuys");
+    for (int d = 0;d<=23;d++){
+        printf("nuys");
+    }
+    for (int d = 0;d<=23;d++){
+        printf("nuys");
+    }
+}
 
 
 
@@ -245,3 +254,21 @@ while wstatus == 0:
             #     flowchart[lu][colAs_1st] = "^"
             #     flowchart[lu][colAs_2nd] = "v"
             #     lu+=1
+
+while True {
+	int x;
+	for(x=0;x<10;x++){
+		printf("nice");
+		for(int i=0;i<5;i++){
+			printf(i);
+		}
+		while(x<10){
+			x++;
+		}
+	}
+	if(x==0){
+		break;
+	}else{
+		print("error");
+	}
+}
