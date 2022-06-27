@@ -96,12 +96,13 @@ if (asd == "asd"){
     printf("eyo");
 }
 
+    
 
 for (int d = 0;d<=23;d++){
-    printf("nuys");
     for (int d = 0;d<=23;d++){
         printf("nuys");
     }
+    printf("nuys");
     for (int d = 0;d<=23;d++){
         printf("nuys");
     }
