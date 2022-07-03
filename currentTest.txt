@@ -273,3 +273,7 @@ while True {
 		print("error");
 	}
 }
+
+row     [        0,    2,    2,        2,         4,    4,       4,    4,        4,      6,        6,       8,        8,         8,      10,       10,        10,        12,    12,       12,        14,    14,       14,         14,         14,        14,     16,       16,        18,       18,      20,       20,        20]
+column  [        0,    0,    2,        4,         2,    4,       6,    8,       10,      8,       10,      10,       12,        14,       8,       10,        12,         8,    10,       12,        12,    14,       16,         18,         20,        22,      4,        6,         0,        2,       0,        2,         4]
+        ['process', 'if', 'if', 'output', 'else if', 'if', 'while', 'if', 'output', 'else', 'output', 'while', 'output', 'endloop', 'while', 'output', 'endloop', 'process', 'for', 'output', 'process', 'for', 'output', 'endFloop', 'endFloop', 'endloop', 'else', 'output', 'else if', 'output', 'while', 'output', 'endloop']
