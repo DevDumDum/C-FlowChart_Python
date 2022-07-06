@@ -1,19 +1,19 @@
-func.append([]) #label              0
-func.append([]) #loop position      1
-func.append([]) #position           2
-func.append([]) #text_label         3
-func.append([]) #pointing           4
-
-
 int a,d,sum,ab,ba = 0;
 char asd,aa = "asd";
 if(a<5){
-	for (int d = 0;d<=23;d++){
-		printf("nuys");
-	}
+    for (int d = 0;d<=23;d++){
+        printf("nuys");
+    }
 } else {
-	printf("wala na");
+    if(a<5){
+        for (int d = 0;d<=23;d++){
+            printf("nuys");
+        }
+    } else {
+        printf("wala na");
+    }
 }
+
 
 
 
@@ -54,10 +54,20 @@ if(a<5){
     }
 } else if (aa == "aa"){
     printf("a");
-}
-while (d<=23){
-    printf("a");
-    d--;
+} else {
+    if(a<5){
+        for (int d = 0;d<=23;d++){
+            printf("nuys");
+        }
+    } else {
+        if(a<5){
+            for (int d = 0;d<=23;d++){
+                printf("nuys");
+            }
+        } else {
+            printf("wala na");
+        }
+    }
 }
 
 if (asd == "asd"){

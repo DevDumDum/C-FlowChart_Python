@@ -43,7 +43,7 @@ def scaleF(txt, h, w, total):
    return font
 
 
-def arrowedLine(im, ptA, ptB, width=2, color=(0,0,0)):
+def arrowedLine(im, ptA, ptB, color, width=2):
     """Draw line from ptA to ptB with arrowhead at ptB"""
     # Get drawing context
     draw = ImageDraw.Draw(im)
@@ -93,8 +93,9 @@ def draw_flowchart(flowchart):
    pColor = (153,255,153)
    processColor = (255,50,50)
    rectangelColor = (255,255,100)
-
-   img = Image.new('RGB', ( width*len(flowchart[0]), ( height*( int(len(flowchart)/2) ) )+( 50*( int(len(flowchart)/2) ) ) ), (128, 128, 128))
+   windowWidth =  width*(int(len(flowchart[0])/2))+(int(width/2)*(int(len(flowchart[0])/2)))
+   windowHeight = ( 100*( int((len(flowchart)+3)/2) ) ) + 50*( int((len(flowchart)+3)/2) )
+   img = Image.new('RGB', (windowWidth, windowHeight), (128, 128, 128))
    draw = ImageDraw.Draw(img)
    # text = "d<0"
    # pointA = (100,50 )
@@ -127,7 +128,7 @@ def draw_flowchart(flowchart):
    y2 = y1+(height/3)-20
    pointA = (x1,y1)
    pointB = (x2,y2)
-   img = arrowedLine(img, pointA, pointB)
+   img = arrowedLine(img, pointA, pointB, (0,0,0))
 
    lastY = y2+10
 
@@ -181,6 +182,7 @@ def draw_flowchart(flowchart):
                      tempText = arr[s]
                total = len(arr)
             else:
+               text[1] = text[1].replace("\t","")
                text[1] = text[1].replace("\n","")
                text[1] = text[1].replace(" ","")
                tempText = text[1]
@@ -223,6 +225,7 @@ def draw_flowchart(flowchart):
 
             strLength = 0
             tempText = ""
+            text[1] = text[0]+" "+text[1]
             arr = text[1].split('\n')
             for s in range(len(arr)):
                if strLength < len(arr[s]):
@@ -290,9 +293,36 @@ def draw_flowchart(flowchart):
             else:
                pointA = (x1,y1)
                pointB = (x2,y2)
-            img = arrowedLine(img, pointA, pointB)
+            img = arrowedLine(img, pointA, pointB, (0,0,0))
             lastX = x1+width/2
          
+         elif text[0] == "else":
+            x1 = lastX+width/2
+            y1 = lastY
+            x2 = x1
+            y2 = y1+height/2
+
+            pointA = (x1,y1)
+            pointB = (x2,y2)
+
+            draw.line((pointA, pointB), fill = "red", width = 2)
+
+            if currentBlockRow+1 < len(flowchart):
+               if flowchart[currentBlockRow+1][currentBlockColumn] != None:
+                  draw.line(((x1,y2), (x2,y2+height/2)), fill = "black", width = 2)
+
+            x1 = x2
+            y1 = y2
+            x2 = x1+width/2
+            y2 = y1
+
+            pointA = (x1,y1)
+            pointB = (x2,y2)
+
+            draw.line((pointA, pointB), fill = "red", width = 2)
+
+            lastX = lastX+width
+
          elif text[0] == " R" or text[0] == "L ":
             x1 = lastX
             y1 = lastY+height/2
@@ -305,35 +335,84 @@ def draw_flowchart(flowchart):
             else:
                pointA = (x1,y1)
                pointB = (x2,y2)
-
+            
             draw.line((pointA, pointB), fill ="blue", width = 2)
                   #  ( x , y )
             x1 = lastX+width/2
-            y2 = y1+height
+            y2 = y1+height/2
 
             pointA = (x1,y1)
             pointB = (x2,y2)
-            draw.line((pointA, pointB), fill ="blue", width = 2)
+
+            if flowchart[currentBlockRow+1][currentBlockColumn-1] == None:
+               img = arrowedLine(img,(x1,lastY), (x2,y1), (0,0,0))
+            
+            if text[0] == "L ":
+               img = arrowedLine(img, pointA, pointB, (0,0,255))
+            else:
+               draw.line((pointA, pointB), fill ="blue", width = 2)
 
             lastX = lastX+width
 
          elif text[0] == "rPointer":
             x1 = lastX
             y1 = lastY+(height/2)
-            x2 = x1+(width/2)
+            x2 = x1+(width/4)
             y2 = y1
             pointA = (x1,y1)
             pointB = (x2,y2)
-            img = arrowedLine(img, pointA, pointB)
+            img = arrowedLine(img, pointA, pointB, (0,0,0))
  
             x1 = x2
-            y1 = lastY+((height-width/2)/2)
-            x2 = x1+width/2
-            y2 = y1+width/2
+            y1 = lastY+((height-width/4)/2)
+            x2 = x1+width/4
+            y2 = y1+width/4
             pointA = (x1,y1)
             pointB = (x2,y2)
          
             draw.ellipse((pointA,pointB), fill=(51,255,51), outline=(0, 0, 0))
+            font = scaleF(text[1], width/4, width/4, 1)
+            draw.text((x1+((width/4)/2),y1), text[1], font=font ,fill ="black", align ="center")
+            lastX += width/2
+
+         elif text[0] == "lPointer":
+            x1 = lastX+(width/4)
+            y1 = lastY+(height/2)
+            x2 = x1+(width/4)
+            y2 = y1
+            pointA = (x1,y1)
+            pointB = (x2,y2)
+            img = arrowedLine(img, pointA, pointB, (0,0,0))
+
+            x1-=10
+            y1 = lastY+((height-width/4)/2)
+            x2 = x1+(width/4)
+            y2 = y1+width/4
+            pointA = (x1,y1)
+            pointB = (x2,y2)
+            draw.ellipse((pointA,pointB), fill=(51,255,51), outline=(0, 0, 0))
+            font = scaleF(text[1], width/4, width/4, 1)
+            draw.text((x1+((width/4)/4),y1), text[1], font=font ,fill ="black", align ="center")
+            lastX += width/2
+
+         elif text[0] == "tPointer":
+            x1 = lastX+width/2
+            y1 = lastY
+            x2 = x1
+            y2 = y1+height
+            pointA = (x1,y1)
+            pointB = (x2,y2)
+            img = arrowedLine(img, pointA, pointB, (0,0,0))
+
+            x1 = lastX+(width/3)+5
+            y1 = lastY
+            x2 = x1+(width/3)-10
+            y2 = y1+(width/3)-10
+            pointA = (x1,y1)
+            pointB = (x2,y2)
+            draw.ellipse((pointA,pointB), fill=(51,255,51), outline=(0, 0, 0))
+            font = scaleF(text[1], width/4, width/4, 1)
+            draw.text((x1+((width/4)/4),y1), text[1], font=font ,fill ="black", align ="center")
             lastX += width
 
          elif text[0] == "->" or text[0] == "<-":
@@ -347,10 +426,19 @@ def draw_flowchart(flowchart):
             if text[0] == "<-":
                pointA = (x2,y1)
                pointB = (x1,y2)
+               draw.line((pointA, pointB), fill ="blue", width = 2)
             else:
                pointA = (x1,y1)
                pointB = (x2,y2)
-            img = arrowedLine(img, pointA, pointB)
+               
+               if currentBlockColumn-1 >= 0 :
+                  text = flowchart[currentBlockRow][currentBlockColumn-1].split("~|~")
+                  if text[0] == "else":
+                     img = arrowedLine(img, pointA, pointB, (255,0,0))
+                  else:
+                     img = arrowedLine(img, pointA, pointB, (0,0,0))
+               else:
+                  img = arrowedLine(img, pointA, pointB, (0,0,0))
             
             lastX = x2
 
@@ -378,6 +466,8 @@ def draw_flowchart(flowchart):
          lastY = y2
 
       currentBlockRow+=1
+   img.save(str(windowWidth)+"x"+str(windowHeight)+".jpg")
+   img = Image.open(str(windowWidth)+"x"+str(windowHeight)+".jpg")
    img.show()
 
 

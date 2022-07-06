@@ -10,7 +10,8 @@ img = Image.new('RGB', (500, 300), (128, 128, 128))
 draw = ImageDraw.Draw(img)
 
 root = Tk()
-root.title("GUI")
+root.iconbitmap('free.ico')
+root.title("C Language to Flowchart")
 root.configure(background="sky blue")
 root.grid_columnconfigure(0,weight=1) # the text and entry frames column
 root.grid_rowconfigure(0,weight=1) # all frames row
@@ -69,6 +70,77 @@ def condition(res, i, bracketStart, bracketEnd, func):
     print("")
 
     return i, bracketStart, bracketEnd, func
+
+def removeElse(func):
+    x = len(func[2])-1
+    totalElse = 0
+    print("")
+    print(func[0])
+    print(func[2])
+    numElse = 0
+    while x > 0:
+        if func[0][x] == "else":
+            print("===========")
+            print(x)
+            print(func[0])
+            print(func[2])
+
+            totalElse+=1
+            numElse+=1
+            func[0].pop(x)
+            func[2].pop(x)
+            func[3].pop(x)
+
+            # func[2][x] -= 1
+            # zz = x+1
+            # if zz < len(func[2]):
+            #     if func[2][x] < func[2][x+1]:
+            #         while zz+1 < len(func[2]):
+            #             func[2][zz]-=1
+            #             if func[2][zz] > func[2][zz+1]:
+            #                 break
+            #             zz+=1
+            #find partner if for same position
+            pe = 0
+            tempC = 0
+            while pe < x:
+                if func[0][pe] == "if" or func[0][pe] == "else if":
+                    tempC+=1
+                if tempC == func[4][len(func[4])-totalElse]:
+                    print("pe:"+str(pe))
+                    func[2][x] = func[2][pe]
+                    break
+                pe+=1
+            print(x)
+            print(tempC)
+            print(func[4][len(func[4])-totalElse])
+            print(func[0])
+            print(func[2])
+            print("")
+            #func[2][x] = 
+            
+            # if func[2][x] > 0:
+            #     func[2][x]-=1
+            #     xx = x
+            #     if xx+1 < len(func[2]):
+            #         while func[2][xx] < func[2][xx+1]:
+            #             func[2][xx]-=1
+            #             if xx+1 > len(func[2]):
+            #                 break
+            #             xx+=1
+            #         print(x)
+            #         print(func[0])
+            #         print(func[2])
+            #         print("")
+        x-=1
+    # x = 1
+    # while x < len(func[4]):
+    #     y = x
+    #     while y < len(func[4]):
+    #         func[4][x]-=1
+    #         y+=1
+    #     x+=1
+    return func
 
 def process(res, i, func, wStatusVar, whileIncrement):
     process_label = ""
@@ -206,6 +278,28 @@ def forLoopFormatFix(func):
             
             #to avoid conflict with other endloop/endFloop, increment
             tempL = lastIndex+1
+
+            #add 1 to the column of sub blocks
+            # print(func[0])
+            # print(func[2])
+            # print(x)
+            # print(func[2][x])
+            # print(lastIndex)
+            # print(func[2][lastIndex])
+            # print("")
+            # zz = lastIndex+1
+            
+            # while zz < len(func[2]):
+            #     if func[2][zz] < func[2][x]:
+            #         print(func[2][zz])
+            #         print(func[2][x])
+            #         print("")
+            #         break
+            #     func[2][zz]+=1
+            #     zz+=1
+            #     print("nuys")
+
+
             # if tempL+1 < len(func[0]):
             #     while (func[0][tempL] == "endloop" or func[0][tempL] == "endFloop") and tempL < len(func[0]):
             #         func[2][tempL] = func[2][tempL-1]+1
@@ -258,6 +352,7 @@ def fixPointerChart(flowchart):
 def mapping(func, flowchart, whileIncrement):
     func = forLoopFormatFix(func)   #seperating process and condition
     func = whileLoopFormatFix(func, whileIncrement) #placing last process on endloop position
+    #func = removeElse(func)
     totalpointer = 0 #pointer
     flowchart.append([])
     total = len(func[2])
@@ -302,7 +397,7 @@ def mapping(func, flowchart, whileIncrement):
                 zz = len(flowchart[current_row])-1
         row_assigned.append(total_row)
 
-        flowchart[current_row][column_assigned[x]] = func[0][x][0]+func[0][x][1]#func[0][x]+"~|~"+func[3][x]#
+        flowchart[current_row][column_assigned[x]] = func[0][x]+"~|~"+func[3][x]#func[0][x][0]+func[0][x][1]#str(current_row)+str(column_assigned[x])#
 
         if x+1<total:
             if column_assigned[x] < column_assigned[x+1]:
@@ -423,12 +518,11 @@ def mapping(func, flowchart, whileIncrement):
             y = count
             temp_row = row_assigned[x]-1
             temp_row2 = row_assigned[y-1]-1
-            for z in range(len(flowchart)):
-                print(flowchart[z])
-            print(temp_row2)
-            print("")
+
             colAs_1st = column_assigned[x]
             colAs_2nd = column_assigned[y]
+
+            
 
             #check and fill if top loop doesnt have a row
             if temp_row < 0:
@@ -444,17 +538,17 @@ def mapping(func, flowchart, whileIncrement):
                 temp_row+=1
                 temp_row2+=1
 
-                flowchart.insert(0,[])
-                for z in range(len(flowchart[1])):
-                    if z == 0:
-                        flowchart[0].append("v ")
-                    else:
-                        flowchart[0].append(None)
-                while xx < len(row_assigned):
-                    row_assigned[xx]+=1
-                    xx+=1
-                temp_row+=1
-                temp_row2+=1
+                # flowchart.insert(0,[])
+                # for z in range(len(flowchart[1])):
+                #     if z == 0:
+                #         flowchart[0].append("v ")
+                #     else:
+                #         flowchart[0].append(None)
+                # while xx < len(row_assigned):
+                #     row_assigned[xx]+=1
+                #     xx+=1
+                # temp_row+=1
+                # temp_row2+=1
 
             #fill columns
             if len(flowchart[temp_row]) < maxColumn or len(flowchart[temp_row2]) < maxColumn :
@@ -559,40 +653,30 @@ def mapping(func, flowchart, whileIncrement):
                         totalpointer+=1
                         wstatus = 1
                         break
-                # for z in range(len(flowchart)):
-                #     print(flowchart[z])
-                # print("")
-                
-                
-                # print("+===================+")
-                # print(maxBottom1st)
-                # print(maxBottom2nd)
-                # print(temp_row)
-                # print(row_assigned[y-1]+1)
-                # print("+===================+")
             if usePointer == 1:
-                if temp_row-2 >= 0:
+                # print(row_assigned)
+                # print(column_assigned)
+                # print("y:"+str(y))
+                # print("rr:"+str(row_assigned[y]))
+                # print("cc:"+str(column_assigned[y]))
+                if temp_row-1 >= 0:
                     if flowchart[temp_row][colAs_1st] == None:
                         flowchart[temp_row][colAs_1st] = "tPointer~|~"+chr(97+(totalpointer-1)) #place pointer on top of the block
                     else:
-                        flowchart[temp_row+1][colAs_1st-1] = "lPointer~|~"+chr(97+(totalpointer-1)) #place pointer on left side of block
-                    flowchart[temp_row2+3][colAs_2nd+1] = "rPointer~|~"+chr(97+(totalpointer-1)) #place pointer on the right side of 2nd block
+                        flowchart[temp_row+1][colAs_1st-1] = "lPointer~|~"+chr(97+(totalpointer-1)) #place pointer on left side of block 
+                    flowchart[row_assigned[y]][colAs_2nd+1] ="rPointer~|~"+chr(97+(totalpointer-1)) #place pointer on the right side of 2nd block
                 else:
-                    xx = 0
-                    flowchart.insert(temp_row-1,[])
-                    while xx < len(flowchart[temp_row]):
-                        flowchart[temp_row-1].append(None)
-                        xx+=1
                     flowchart[temp_row][colAs_1st] = "tPointer~|~"+chr(97+(totalpointer-1)) #place pointer on top of block
-                    flowchart[temp_row2+3][colAs_2nd] = "tPointer~|~"+chr(97+(totalpointer-1)) #place pointer on top of block
+                    flowchart[row_assigned[y]][colAs_2nd+1] = "rPointer~|~"+chr(97+(totalpointer-1)) #place pointer on top of block
 
-            for z in range(len(flowchart)):
-                print(flowchart[z])
-            print("")
+            # for z in range(len(flowchart)):
+            #     print(flowchart[z])
+            # print("tR:"+str(temp_row2))
+            # print("")
         x-=1
     print("=========================")
     print("total row: "+str(total_row))
-    #print(func[0])
+    print(func[0])
     print("   Row: "+str(row_assigned))
     print("Column: "+str(column_assigned))
     for z in range(len(flowchart)):
@@ -615,11 +699,13 @@ def convertBtn():
         tempBracketEnd = 0
         
         func = []
-        func.append([]) #label              0
-        func.append([]) #loop position      1
-        func.append([]) #position           2
-        func.append([]) #text_label         3
-        func.append([]) #pointing           4
+        func.append([]) #label                  0
+        func.append([]) #loop position          1
+        func.append([]) #position               2
+        func.append([]) #text_label             3
+        func.append([]) #partner of else (if)   4
+
+        
         whileIncrement = []
 
         tempF = []
@@ -629,6 +715,8 @@ def convertBtn():
         wStatusVar = 0
 
         flowchart = []  #map of flowchart
+
+
 
         i = 0
         print("")
@@ -667,7 +755,22 @@ def convertBtn():
             if(text_code_count > i+4):
                 if str(res[i])+str(res[i+1])+str(res[i+2])+str(res[i+3]) == "else":
                     conType = "else"
+                    #find if partner
+                    elsePartner = 0
+                    elseCount = 0
+                    index = len(func[0])-1
+                    while index > 0:
+                        if func[2][index] == tempBracketEnd and (func[0][index] == "if" or func[0][index] == "else if"):
+                            elsePartner = index
+                            break
+                        index-=1
+                    while elsePartner >= 0:
+                        if func[0][elsePartner] == "if":
+                            elseCount+=1
+                        elsePartner-=1
+                    func[4].append(elseCount)
                     i+=4
+
                     condStatus = 1
                 elif str(res[i])+str(res[i+1])+str(res[i+2])+str(res[i+3]) == "char" and str(res[i+4]) == " ":
                     conType = "process"
@@ -725,10 +828,9 @@ def convertBtn():
                     wStatusVar = 0
                     i, func, whileIncrement = process(res, i, func, wStatusVar, whileIncrement)
                 elif conType == "else":
-                    print("else arrow")
+                    #print("else arrow")
                     func[3].append("else")
 
-                
                 func[2].append(tempBracketEnd)
 
             if text_code_count > i:
@@ -739,8 +841,8 @@ def convertBtn():
                         for a in range(len(tempW)):
                             if tempW[a] != 0:
                                 tempW[a] += 1
-                    
-                    
+
+
                 elif res[i] == "}":
                     if whileStatus > 0:
                         tempN = None
@@ -753,15 +855,13 @@ def convertBtn():
                                         func[2].append(func[2][-1]-1)
                                     else:
                                         func[2].append(func[2][-1]+1)
-                                    print(func[0])
-                                    print(func[2])
-                                    print("")
                                     func[0].append("endloop")
                                     func[1].append(gg+1)
                                     func[3].append("endloop")
                                     whileStatus-=1
                                     tempW[gg] = 0
                             gg-=1
+
                     if forStatus > 0:
                         gg = len(tempF)-1
                         while gg >= 0:
@@ -773,9 +873,6 @@ def convertBtn():
                                         func[2].append(func[2][-1]-1)
                                     else:
                                         func[2].append(func[2][-1]+1)
-                                    print(func[0])
-                                    print(func[2])
-                                    print("")
                                     func[0].append("endFloop")
                                     func[1].append(gg+1)
                                     func[3].append("endFloop")
@@ -798,9 +895,13 @@ def convertBtn():
         # print(func[0])
         # print("")
         func = optimize_process_function(func)
+        bt["text"] = "..."
+        bt["bg"] = "red"
         flowchart = mapping(func, flowchart, whileIncrement)
         #flowchart = fixPointerChart(flowchart)
-        #draw_flowchart(flowchart)
+        draw_flowchart(flowchart)
+        bt["text"] = "Converted"
+        bt["bg"] = "green"
     else:
         print(tempText)
 
